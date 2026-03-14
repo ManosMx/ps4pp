@@ -1,64 +1,30 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MapContainer, TileLayer } from "react-leaflet";
 import NewLocationMarker from "./NewLocationMarker";
 import { supabase } from "@/lib/supabase/client";
-import { useEffect, useState } from "react";
 import LocationMarker from "./LocationMarker";
-
-type Post =
-  | {
-      id: any;
-      title: any;
-      body: any;
-      status: any;
-      location: {
-        id: any;
-        address: any;
-        city: any;
-        state: any;
-        country: any;
-        latitude: any;
-        longitude: any;
-      }[];
-      tags: {
-        id: any;
-        value: any;
-        color: any;
-      }[];
-    }[]
-  | null;
+import { useQuery } from "@tanstack/react-query";
+import getMapPosts, { type MapPost } from "@/pages/api/get-map-posts";
 
 export default function Map() {
-  const [posts, setPosts] = useState<Post>([]);
+  const { data: posts = [] } = useQuery<MapPost[], Error>({
+    queryKey: ["map-posts"],
+    queryFn: async () => {
+      const { data, error } = await getMapPosts(supabase);
 
-  useEffect(() => {
-    supabase
-      .from("posts")
-      .select(
-        `
-    id,
-    title,
-    body,
-    status,
-    location:locations_expanded (
-      id,
-      address,
-      city,
-      state,
-      country,
-      latitude,
-      longitude
-    ),
-      tags (
-        id,
-        value,
-        color
-      )
-  `,
-      )
-      .then((result) => setPosts(result.data));
-  }, []);
+      if (error) {
+        throw error;
+      }
+
+      return (data ?? []) as MapPost[];
+    },
+  });
+
+  const markerPosts = posts.filter((post) => {
+    const latitude = post.location?.latitude;
+    const longitude = post.location?.longitude;
+
+    return typeof latitude === "number" && typeof longitude === "number";
+  });
 
   return (
     <MapContainer
@@ -71,15 +37,20 @@ export default function Map() {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       <NewLocationMarker />
-      {posts?.map((post) => {
+      {markerPosts.map((post) => {
+        const latitude = post.location?.latitude;
+        const longitude = post.location?.longitude;
+
+        if (typeof latitude !== "number" || typeof longitude !== "number") {
+          return null;
+        }
+
         return (
           <LocationMarker
             key={post.id}
             position={{
-              // @ts-expect-error
-              lat: post.location?.latitude as number,
-              // @ts-expect-error
-              lng: post.location?.longitude as number,
+              lat: latitude,
+              lng: longitude,
             }}
           />
         );
