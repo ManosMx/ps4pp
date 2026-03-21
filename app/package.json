@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "gen-types": "npx supabase gen types typescript --db-url \"postgresql://postgres:postgres@localhost:54322/postgres\" > src/lib/database.types.ts"
+    "gen-types": "supabase gen types typescript --db-url postgres://postgres.your-tenant-id:your-super-secret-and-long-postgres-password@127.0.0.1:5432/postgres --schema public > database.types.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
@@ -43,6 +43,7 @@
     "react-leaflet": "^5.0.0",
     "react-medium-image-zoom": "^5.4.0",
     "sonner": "^2.0.7",
+    "supabase": "^2.78.1",
     "tailwind-merge": "^3.4.1",
     "tailwindcss": "^4.1.18",
     "zod": "^4.3.6"
@@ -69,6 +70,7 @@
   ],
   "trustedDependencies": [
     "sharp",
+    "supabase",
     "unrs-resolver"
   ]
 }
