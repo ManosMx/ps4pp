@@ -1,6 +1,6 @@
-import { Icon, LatLng, LatLngExpression } from "leaflet";
-import { Marker, Popup, useMap } from "react-leaflet";
-import { useLocation } from "./context/LocationProvider";
+import { Icon } from "leaflet";
+import { Marker, useMap } from "react-leaflet";
+import { MapPost } from "@/pages/api/get-map-posts";
 
 const icon = new Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -12,30 +12,34 @@ const icon = new Icon({
 });
 
 export default function LocationMarker({
-  position,
+  post,
+  onClick,
 }: {
-  position: LatLngExpression;
+  post: MapPost;
+  onClick?: () => void;
 }) {
   const map = useMap();
-  const { setLocation } = useLocation();
+
+  if (
+    typeof post.location?.latitude !== "number" ||
+    typeof post.location?.longitude !== "number"
+  ) {
+    return null;
+  }
 
   return (
     <Marker
-      position={position}
+      position={{
+        lat: post.location.latitude,
+        lng: post.location.longitude,
+      }}
       icon={icon}
       eventHandlers={{
         click: (e) => {
-          setLocation({
-            location: { lat: e.latlng.lat, lng: e.latlng.lng },
-            action: "view",
-          });
-          map.flyTo(e.latlng, map.getZoom());
+          onClick?.();
+          map.flyTo(e.latlng, map.getMaxZoom());
         },
       }}
-    >
-      <Popup>
-        A pretty CSS3 popup. <br /> Easily customizable.
-      </Popup>
-    </Marker>
+    />
   );
 }

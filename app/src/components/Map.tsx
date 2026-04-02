@@ -1,5 +1,4 @@
 import { MapContainer, TileLayer } from "react-leaflet";
-import NewLocationMarker from "./NewLocationMarker";
 import { supabase } from "@/lib/supabase/client";
 import LocationMarker from "./LocationMarker";
 import { useQuery } from "@tanstack/react-query";
@@ -8,10 +7,13 @@ import { type TagOption } from "@/pages/api/get-all-tags";
 import { useState } from "react";
 import MapBoundsListener, { type MapViewBounds } from "./MapBoundsListener";
 import MapTagsFilter from "./MapTagsFilter";
+import PostViewSidebar from "./PostViewSidebar";
 
 export default function Map() {
   const [selectedTags, setSelectedTags] = useState<TagOption[]>([]);
   const [bounds, setBounds] = useState<MapViewBounds | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
 
   const selectedTagIds = selectedTags.map((tag) => tag.id);
 
@@ -38,39 +40,39 @@ export default function Map() {
       }),
   });
 
+  const onClickMarker = (postId: number) => {
+    setSidebarOpen(true);
+    setSelectedPostId(postId);
+  };
+
   return (
-    <div className="relative h-full w-full">
-      <MapContainer
-        center={[35.51217733300905, 24.020619392395023]}
-        zoom={14}
-        style={{ height: "100%", width: "100%" }}
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        <MapBoundsListener onChange={setBounds} />
-        <MapTagsFilter onChange={setSelectedTags} />
-        <NewLocationMarker />
-        {markerPosts.map((post) => {
-          const latitude = post.location?.latitude;
-          const longitude = post.location?.longitude;
-
-          if (typeof latitude !== "number" || typeof longitude !== "number") {
-            return null;
-          }
-
-          return (
+    <div className="relative flex h-full w-full overflow-hidden">
+      <div className="min-w-0 flex-1">
+        <MapContainer
+          center={[35.51217733300905, 24.020619392395023]}
+          zoom={14}
+          style={{ height: "100%", width: "100%" }}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          <MapBoundsListener onChange={setBounds} />
+          <MapTagsFilter onChange={setSelectedTags} />
+          {markerPosts.map((post) => (
             <LocationMarker
               key={post.id}
-              position={{
-                lat: latitude,
-                lng: longitude,
-              }}
+              post={post}
+              onClick={() => onClickMarker(post.id)}
             />
-          );
-        })}
-      </MapContainer>
+          ))}
+        </MapContainer>
+      </div>
+      <PostViewSidebar
+        postId={selectedPostId ?? 1}
+        isOpen={sidebarOpen}
+        close={() => setSidebarOpen(false)}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,7 +29,18 @@ import { MinimalTiptapEditor } from "./ui/minimal-tiptap";
 import { useLocation } from "./context/LocationProvider";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import type { FeatureFlags } from "@/lib/types/types";
+import createNewPost from "@/pages/api/create-new-post";
+import getAllTags from "@/pages/api/get-all-tags";
+import getFeatureFlags from "@/pages/api/get-feature-flags";
 import ComboboxMultiple from "./ui/combobox-multiple";
+import { toast } from "sonner";
+
+const defaultFeatureFlags: FeatureFlags = {
+  tagsEnabled: false,
+  usersEnabled: false,
+  approvalEnabled: false,
+};
 
 type Tag = {
   id: number;
@@ -46,26 +58,50 @@ const formSchema = z.object({
     .min(10, "Body must be at least 10 characters.")
     .max(500, "Body must be at most 500 characters."),
   tags: z.array(z.object({ id: z.number(), value: z.string() })),
-  location: z.object({
-    address: z.string().optional(),
-    city: z.string().optional(),
-    state: z.string().optional(),
-    country: z.string().optional(),
-    latitude: z.number(),
-    longitude: z.number(),
-  }),
 });
 
 export default function PostForm() {
-  const { location, action } = useLocation();
-  const [tags, setTags] = useState<Tag[] | null>(null);
+  const { location, clearLocation } = useLocation();
+  const queryClient = useQueryClient();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    supabase
-      .from("tags")
-      .select("*")
-      .then((result) => setTags(result.data));
-  }, []);
+  const { data: featureFlags = defaultFeatureFlags } = useQuery<
+    FeatureFlags,
+    Error
+  >({
+    queryKey: ["feature-flags"],
+    queryFn: async () => {
+      const { data, error } = await getFeatureFlags(supabase);
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data) {
+        return defaultFeatureFlags;
+      }
+
+      return {
+        tagsEnabled: data.tagsEnabled,
+        usersEnabled: data.usersEnabled,
+        approvalEnabled: data.approvalEnabled,
+      };
+    },
+  });
+
+  const { data: tags = [] } = useQuery<Tag[], Error>({
+    queryKey: ["tags"],
+    queryFn: async () => {
+      const { data, error } = await getAllTags(supabase);
+
+      if (error) {
+        throw error;
+      }
+
+      return (data ?? []) as Tag[];
+    },
+    enabled: featureFlags?.tagsEnabled ?? false,
+  });
 
   const form = useForm({
     defaultValues: {
@@ -77,20 +113,67 @@ export default function PostForm() {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log("Form submitted successfully with ", value);
+      setIsSubmitting(true);
+
+      const { error } = await createNewPost(supabase, {
+        title: value.title,
+        body: value.body,
+        tagIds: featureFlags?.tagsEnabled
+          ? value.tags.map((tag) => tag.id)
+          : [],
+      });
+
+      setIsSubmitting(false);
+
+      if (error) {
+        toast.error("Failed to create post", {
+          description: error.message,
+          position: "bottom-right",
+        });
+        return;
+      }
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["posts"] }),
+        queryClient.invalidateQueries({ queryKey: ["map-posts"] }),
+      ]);
+
+      form.reset();
+      clearLocation();
+
+      toast.success("Post created", {
+        description: "Your post was saved successfully.",
+        position: "bottom-right",
+      });
     },
   });
+
+  useEffect(() => {
+    if (!featureFlags?.tagsEnabled) {
+      form.setFieldValue("tags", []);
+    }
+  }, [featureFlags?.tagsEnabled, form]);
 
   return (
     <Card className="w-full sm:max-w-md">
       <CardHeader>
-        <CardTitle>Bug Report</CardTitle>
+        <CardTitle>Create Post</CardTitle>
         <CardDescription>
-          Help us improve by reporting bugs you encounter.
+          Add a new post for the selected map location.
         </CardDescription>
+        {location ? (
+          <CardDescription>
+            Location: {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
+          </CardDescription>
+        ) : (
+          <CardDescription>
+            Select a point on the map to place this post.
+          </CardDescription>
+        )}
       </CardHeader>
       <CardContent>
         <form
+          id="post-form"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
@@ -103,7 +186,7 @@ export default function PostForm() {
                   field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Bug Title</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Title</FieldLabel>
                     <Input
                       id={field.name}
                       name={field.name}
@@ -111,7 +194,7 @@ export default function PostForm() {
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
-                      placeholder="Login button not working on mobile"
+                      placeholder="Sunset at the Old Venetian Harbor"
                       autoComplete="off"
                     />
                     {isInvalid && (
@@ -135,19 +218,19 @@ export default function PostForm() {
                         onChange={(e) =>
                           field.handleChange(e?.toString() || "")
                         }
-                        placeholder="I'm having an issue with the login button on mobile."
+                        placeholder="Share what makes this place worth pinning on the map."
                         className="min-h-24 resize-none"
                         aria-invalid={isInvalid}
                       />
                       <InputGroupAddon align="block-end">
                         <InputGroupText className="tabular-nums">
-                          {field.state.value.length}/100 characters
+                          {field.state.value.length}/500 characters
                         </InputGroupText>
                       </InputGroupAddon>
                     </InputGroup>
                     <FieldDescription>
-                      Include steps to reproduce, expected behavior, and what
-                      actually happened.
+                      Describe the place, what happened there, or why others
+                      should check it out.
                     </FieldDescription>
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
@@ -156,40 +239,47 @@ export default function PostForm() {
                 );
               }}
             </form.Field>
-            <form.Field name="tags">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Tags</FieldLabel>
-                    <InputGroup>
-                      <ComboboxMultiple
-                        items={tags ?? []}
-                        value={field.state.value}
-                        onValueChange={(value) => field.handleChange(value)}
-                      />
-                    </InputGroup>
-                    <FieldDescription>
-                      Select tags relevant to your post.
-                    </FieldDescription>
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                );
-              }}
-            </form.Field>
+            {featureFlags?.tagsEnabled ? (
+              <form.Field name="tags">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Tags</FieldLabel>
+                      <InputGroup>
+                        <ComboboxMultiple
+                          items={tags}
+                          value={field.state.value}
+                          onValueChange={(value) => field.handleChange(value)}
+                        />
+                      </InputGroup>
+                      <FieldDescription>
+                        Select tags relevant to your post.
+                      </FieldDescription>
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              </form.Field>
+            ) : null}
           </FieldGroup>
         </form>
       </CardContent>
       <CardFooter>
         <Field orientation="horizontal">
-          <Button type="button" variant="outline" onClick={() => form.reset()}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => form.reset()}
+            disabled={isSubmitting}
+          >
             Reset
           </Button>
-          <Button type="submit" form="bug-report-form">
-            Submit
+          <Button type="submit" form="post-form" disabled={isSubmitting}>
+            {isSubmitting ? "Creating..." : "Create Post"}
           </Button>
         </Field>
       </CardFooter>
