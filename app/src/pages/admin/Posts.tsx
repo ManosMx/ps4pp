@@ -1,3 +1,7 @@
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { requireElevatedPage } from "@/lib/auth/server";
+import AdminTabs from "./AdminTabs";
+
 import { DataTable } from "@/components/DataTable";
 import { POST_STATUS_OPTIONS, type PostStatus } from "@/lib/post-statuses";
 import { supabase } from "@/lib/supabase/client";
@@ -98,7 +102,7 @@ const columns: ColumnDef<Post>[] = [
 const page = 1;
 const pageSize = 10;
 
-export default function Posts() {
+function PostsTable() {
   const [titleSearch, setTitleSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<PostStatus | "">("");
   const [selectedTags, setSelectedTags] = useState<TagOption[]>([]);
@@ -186,7 +190,9 @@ export default function Posts() {
           <ComboboxMultiple
             value={selectedTags}
             items={availableTags}
-            onValueChange={setSelectedTags}
+            onValueChange={(value) =>
+              setSelectedTags(value.map((tag) => ({ ...tag, color: null })))
+            }
             placeholder="Filter by tags..."
             emptyText="No matching tags"
             className="w-full"
@@ -204,3 +210,24 @@ export default function Posts() {
     </div>
   );
 }
+
+export default function PostsPage(
+  props: InferGetServerSidePropsType<typeof getServerSideProps>,
+) {
+  return (
+    <main className="container mx-auto p-16 justify-center align-middle">
+      <div className="space-y-6">
+        <AdminTabs
+          activeTab="posts"
+          role={props.role}
+          tagsEnabled={props.tagsEnabled}
+        />
+        <PostsTable />
+      </div>
+    </main>
+  );
+}
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return requireElevatedPage(context, "/admin/posts");
+};
