@@ -222,6 +222,16 @@ export type Database = {
           longitude: number;
         }[];
       };
+      list_manageable_users: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          app_role: string;
+          created_at: string | null;
+          display_name: string;
+          email: string | null;
+          id: string;
+        }[];
+      };
     };
     Enums: {
       status: "PENDING" | "PUBLISHED" | "REJECTED";
