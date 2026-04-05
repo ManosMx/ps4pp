@@ -107,9 +107,9 @@ export default function LoginScreen() {
       )}
 
       {/* Form */}
-      <form className="mt-8 space-y-5" onSubmit={onSubmit}>
+      <form className="mt-8 flex flex-col gap-4" onSubmit={onSubmit}>
         {/* Email */}
-        <div className="space-y-1.5">
+        <div className="flex flex-col gap-4">
           <label htmlFor="email" className="text-sm font-medium text-gray-700">
             Email Address
           </label>
@@ -129,7 +129,7 @@ export default function LoginScreen() {
         </div>
 
         {/* Password */}
-        <div className="space-y-1.5">
+        <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <label
               htmlFor="password"
@@ -187,7 +187,7 @@ export default function LoginScreen() {
       </form>
 
       {/* Divider */}
-      <div className="my-6 flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <span className="h-px flex-1 bg-gray-200" />
         <span className="text-xs font-medium uppercase tracking-widest text-gray-400">
           or continue with
@@ -196,7 +196,7 @@ export default function LoginScreen() {
       </div>
 
       {/* Social Buttons */}
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         <button
           type="button"
           onClick={onGoogleAuth}
@@ -247,7 +247,7 @@ export default function LoginScreen() {
             href="/signup"
             className="inline-block rounded-full border border-primary px-3 py-0.5 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
           >
-            Join the Tapestry
+            Join PS4PP
           </Link>
         </p>
       )}
