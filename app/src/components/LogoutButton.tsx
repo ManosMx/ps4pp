@@ -10,9 +10,7 @@ export default function LogoutButton({ className }: { className?: string }) {
       type="button"
       variant="outline"
       className={className}
-      onClick={() => {
-        void logout();
-      }}
+      onClick={() => logout()}
       disabled={isSigningOut}
     >
       <LogOutIcon />

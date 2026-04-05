@@ -113,7 +113,7 @@ export default function ComboboxMultiple({
       </div>
 
       {open && (
-        <div className="bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 absolute z-50 mt-1 w-full rounded-md border shadow-md">
+        <div className="bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 absolute z-999 mt-1 w-full rounded-md border shadow-md">
           <div className="max-h-60 overflow-y-auto p-1">
             {filtered.length === 0 ? (
               <div className="text-muted-foreground py-2 text-center text-sm">

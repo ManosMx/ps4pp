@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import Markdown from "react-markdown";
 import { supabase } from "@/lib/supabase/client";
 import getPageBySlug from "@/pages/api/get-page-by-slug";
+import { Card } from "./ui/card";
 
 export default function PageContent({ slug }: { slug: string }) {
   const { data: page, isLoading } = useQuery({
@@ -33,19 +34,15 @@ export default function PageContent({ slug }: { slug: string }) {
   }
 
   return (
-    <article className="prose prose-gray mx-auto w-full align-center flex flex-col overflow-y-auto p-16">
-      <Markdown
-        components={{
-          a: ({ node, ...props }) => (
-            <a
-              {...props}
-              className="underline text-blue-500 hover:text-blue-700 transition-colors duration-200"
-            />
-          ),
-        }}
-      >
-        {page.body ?? ""}
-      </Markdown>
-    </article>
+    <div className="flex flex-1 justify-center py-16 bg-muted">
+      <Card className="max-w-3xl rounded-lg border h-fit">
+        <article
+          className="prose prose-gray px-16 py-8"
+          dangerouslySetInnerHTML={
+            page.body ? { __html: page.body } : undefined
+          }
+        />
+      </Card>
+    </div>
   );
 }

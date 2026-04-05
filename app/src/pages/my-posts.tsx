@@ -13,7 +13,6 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 
 type MyPost = {
   id: number;
@@ -150,7 +149,7 @@ export default function MyPostsPage({
     : columns.filter((column) => column.id !== "tags");
 
   return (
-    <div className="min-h-screen bg-muted px-4 py-8">
+    <div className="flex justify-center min-h-screen bg-muted px-4 py-8">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">
@@ -201,9 +200,12 @@ export default function MyPostsPage({
                 ))}
               </select>
               <div>
-                <Button variant="default" asChild className="w-full">
-                  <a href="/new-post">Add post</a>
-                </Button>
+                <Link
+                  href="/new-post"
+                  className="flex items-center gap-2 rounded-md justify-center bg-primary px-5 py-2 text-sm font-medium !text-white shadow-sm transition-colors hover:bg-primary/90"
+                >
+                  Add post
+                </Link>
               </div>
             </div>
           </CardHeader>

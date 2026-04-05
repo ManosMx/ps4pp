@@ -4,6 +4,8 @@ import { LocationProvider } from "./context/LocationProvider";
 import PostForm from "./PostForm";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function NewPostMap() {
   const [isOpen, setIsOpen] = useState(true);
@@ -16,8 +18,15 @@ export default function NewPostMap() {
             center={[35.51217733300905, 24.020619392395023]}
             zoom={13}
             zoomControl={false}
-            className="w-full h-full rounded-md"
+            className="w-full h-full"
           >
+            <Link
+              href="/my-posts"
+              className="z-1000 absolute top-4 left-4 flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium !text-white shadow-sm transition-colors hover:bg-primary/90"
+            >
+              <ArrowLeft className="size-4" />
+              Back
+            </Link>
             <ZoomControl position="bottomleft" />
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -36,7 +45,7 @@ export default function NewPostMap() {
           )}
         >
           {/* Sidebar content goes here */}
-          <PostForm onClose={() => setIsOpen(false)} />
+          <PostForm />
         </aside>
       </div>
     </LocationProvider>

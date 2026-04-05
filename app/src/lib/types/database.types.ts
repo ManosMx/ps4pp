@@ -258,6 +258,17 @@ export type Database = {
           longitude: number;
         }[];
       };
+      insert_location: {
+        Args: {
+          lat: number;
+          lng: number;
+          p_address?: string;
+          p_city?: string;
+          p_country?: string;
+          p_state?: string;
+        };
+        Returns: number;
+      };
       is_admin: { Args: never; Returns: boolean };
       is_moderator: { Args: never; Returns: boolean };
       list_manageable_users: {
@@ -271,6 +282,18 @@ export type Database = {
         }[];
       };
       tags_enabled: { Args: never; Returns: boolean };
+      update_location: {
+        Args: {
+          lat: number;
+          lng: number;
+          p_address?: string;
+          p_city?: string;
+          p_country?: string;
+          p_location_id: number;
+          p_state?: string;
+        };
+        Returns: undefined;
+      };
       users_enabled: { Args: never; Returns: boolean };
     };
     Enums: {

@@ -81,22 +81,11 @@ export default function PostView({
           ))}
         </div>
       )}
-
       {/* Body */}
-      <article className="prose prose-sm max-w-none px-6 pt-5 pb-8 text-foreground">
-        <Markdown
-          components={{
-            a: ({ node, ...props }) => (
-              <a
-                {...props}
-                className="underline text-blue-500 hover:text-blue-700 transition-colors duration-200"
-              />
-            ),
-          }}
-        >
-          {post?.body ?? ""}
-        </Markdown>
-      </article>
+      <article
+        className="prose prose-sm max-w-none px-6 pt-5 pb-8 text-foreground"
+        dangerouslySetInnerHTML={post?.body ? { __html: post.body } : undefined}
+      />
     </div>
   );
 }

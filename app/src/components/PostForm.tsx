@@ -11,13 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "./ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "./ui/field";
 import {
   InputGroup,
   InputGroupAddon,
@@ -35,6 +29,7 @@ import getFeatureFlags from "@/pages/api/get-feature-flags";
 import ComboboxMultiple from "./ui/combobox-multiple";
 import { toast } from "sonner";
 import { XIcon } from "lucide-react";
+import createNewLocation from "@/pages/api/create-new-location";
 
 const defaultFeatureFlags: FeatureFlags = {
   tagsEnabled: false,
@@ -60,7 +55,7 @@ const formSchema = z.object({
   tags: z.array(z.object({ id: z.number(), value: z.string() })),
 });
 
-export default function PostForm({ onClose }: { onClose: () => void }) {
+export default function PostForm() {
   const { location, clearLocation } = useLocation();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -89,7 +84,7 @@ export default function PostForm({ onClose }: { onClose: () => void }) {
     },
   });
 
-  const { data: tags = [] } = useQuery<Tag[], Error>({
+  const { data: tags = [], isLoading } = useQuery<Tag[], Error>({
     queryKey: ["tags"],
     queryFn: async () => {
       const { data, error } = await getAllTags(supabase);
@@ -115,32 +110,48 @@ export default function PostForm({ onClose }: { onClose: () => void }) {
     onSubmit: async ({ value }) => {
       setIsSubmitting(true);
 
-      // const { error } = await createNewPost(supabase, {
-      //   title: value.title,
-      //   body: value.body,
-      //   tagIds: featureFlags?.tagsEnabled
-      //     ? value.tags.map((tag) => tag.id)
-      //     : [],
-      // });
+      const { error: locationError } = await createNewLocation(supabase, {
+        latitude: location?.lat ?? 0,
+        longitude: location?.lng ?? 0,
+      });
 
-      // setIsSubmitting(false);
+      if (locationError) {
+        toast.error("Failed to create location", {
+          description: locationError.message,
+          position: "bottom-right",
+        });
+        setIsSubmitting(false);
+        return;
+      }
 
-      // if (error) {
-      //   toast.error("Failed to create post", {
-      //     description: error.message,
-      //     position: "bottom-right",
-      //   });
-      //   return;
-      // }
+      const { error } = await createNewPost(supabase, {
+        title: value.title,
+        body: value.body,
+        tagIds: featureFlags?.tagsEnabled
+          ? value.tags.map((tag) => tag.id)
+          : [],
+      });
 
-      // await Promise.all([
-      //   queryClient.invalidateQueries({ queryKey: ["posts"] }),
-      //   queryClient.invalidateQueries({ queryKey: ["map-posts"] }),
-      // ]);
+      setIsSubmitting(false);
 
-      // form.reset();
-      // clearLocation();
+      if (error) {
+        toast.error("Failed to create post", {
+          description: error.message,
+          position: "bottom-right",
+        });
+        return;
+      }
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["posts"] }),
+        queryClient.invalidateQueries({ queryKey: ["map-posts"] }),
+      ]);
+
+      form.reset();
+      clearLocation();
       console.log("Form submitted with values:", value);
+
+      setIsSubmitting(false);
 
       toast.success("Post created", {
         description: "Your post was saved successfully.",
@@ -158,15 +169,7 @@ export default function PostForm({ onClose }: { onClose: () => void }) {
   return (
     <div className="flex h-full w-full flex-col overflow-x-hidden overflow-y-auto py-8 gap-4">
       <CardHeader>
-        <div className="flex flex-row">
-          <CardTitle>Create Post</CardTitle>
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 z-10 flex size-8 items-center justify-center rounded-full bg-black/30 text-white transition-colors hover:bg-black/50"
-          >
-            <XIcon className="size-4" />
-          </button>
-        </div>
+        <CardTitle>Create Post</CardTitle>
         <CardDescription>
           Add a new post for the selected map location.
         </CardDescription>
@@ -206,46 +209,8 @@ export default function PostForm({ onClose }: { onClose: () => void }) {
                       aria-invalid={isInvalid}
                       placeholder="Sunset at the Old Venetian Harbor"
                       autoComplete="off"
+                      className="bg-muted"
                     />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                );
-              }}
-            </form.Field>
-            <form.Field name="body">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field
-                    data-invalid={isInvalid}
-                    className="flex flex-1 flex-col min-w-0"
-                  >
-                    <FieldLabel htmlFor={field.name}>Body</FieldLabel>
-                    <InputGroup className="flex flex-1 flex-col min-w-0">
-                      <SimpleEditor
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onUpdate={(e) =>
-                          field.handleChange(e?.toString() || "")
-                        }
-                        placeholder="Share what makes this place worth pinning on the map."
-                        className="flex-1 border-md"
-                        editorClassName="py-4 px-4"
-                        aria-invalid={isInvalid}
-                      />
-                      <InputGroupAddon align="block-end">
-                        <InputGroupText className="tabular-nums">
-                          {field.state.value.length}/500 characters
-                        </InputGroupText>
-                      </InputGroupAddon>
-                    </InputGroup>
-                    <FieldDescription>
-                      Describe the place, what happened there, or why others
-                      should check it out.
-                    </FieldDescription>
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
                     )}
@@ -266,11 +231,9 @@ export default function PostForm({ onClose }: { onClose: () => void }) {
                           items={tags}
                           value={field.state.value}
                           onValueChange={(value) => field.handleChange(value)}
+                          className="bg-muted"
                         />
                       </InputGroup>
-                      <FieldDescription>
-                        Select tags relevant to your post.
-                      </FieldDescription>
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
                       )}
@@ -279,6 +242,41 @@ export default function PostForm({ onClose }: { onClose: () => void }) {
                 }}
               </form.Field>
             ) : null}
+            <form.Field name="body">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field
+                    data-invalid={isInvalid}
+                    className="flex flex-1 flex-col min-w-0"
+                  >
+                    <FieldLabel htmlFor={field.name}>Body</FieldLabel>
+                    <InputGroup className="flex flex-1 flex-col min-w-0">
+                      <SimpleEditor
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onUpdate={(e) =>
+                          field.handleChange(e?.toString() || "")
+                        }
+                        placeholder="Share what makes this place worth pinning on the map."
+                        className="flex-1 border-md h-1/3 bg-muted"
+                        editorClassName="py-4 px-4"
+                        aria-invalid={isInvalid}
+                      />
+                      <InputGroupAddon align="block-end">
+                        <InputGroupText className="tabular-nums">
+                          {field.state.value.length}/500 characters
+                        </InputGroupText>
+                      </InputGroupAddon>
+                    </InputGroup>
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            </form.Field>
           </FieldGroup>
         </form>
       </CardContent>
@@ -288,12 +286,16 @@ export default function PostForm({ onClose }: { onClose: () => void }) {
             type="button"
             variant="outline"
             onClick={() => form.reset()}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isLoading}
           >
             Reset
           </Button>
-          <Button type="submit" form="post-form" disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create Post"}
+          <Button
+            type="submit"
+            form="post-form"
+            disabled={isSubmitting || isLoading}
+          >
+            {isSubmitting || isLoading ? "Creating..." : "Create Post"}
           </Button>
         </Field>
       </CardFooter>
