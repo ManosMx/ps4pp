@@ -5,7 +5,6 @@ import { useForm } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
   CardContent,
   CardDescription,
   CardFooter,
@@ -25,7 +24,6 @@ import {
   InputGroupText,
 } from "@/components/ui/input-group";
 import { Input } from "./ui/input";
-import { MinimalTiptapEditor } from "./ui/minimal-tiptap";
 import { useLocation } from "./context/LocationProvider";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
@@ -35,6 +33,7 @@ import getAllTags from "@/pages/api/get-all-tags";
 import getFeatureFlags from "@/pages/api/get-feature-flags";
 import ComboboxMultiple from "./ui/combobox-multiple";
 import { toast } from "sonner";
+import { XIcon } from "lucide-react";
 
 const defaultFeatureFlags: FeatureFlags = {
   tagsEnabled: false,
@@ -60,7 +59,7 @@ const formSchema = z.object({
   tags: z.array(z.object({ id: z.number(), value: z.string() })),
 });
 
-export default function PostForm() {
+export default function PostForm({ onClose }: { onClose: () => void }) {
   const { location, clearLocation } = useLocation();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,31 +114,32 @@ export default function PostForm() {
     onSubmit: async ({ value }) => {
       setIsSubmitting(true);
 
-      const { error } = await createNewPost(supabase, {
-        title: value.title,
-        body: value.body,
-        tagIds: featureFlags?.tagsEnabled
-          ? value.tags.map((tag) => tag.id)
-          : [],
-      });
+      // const { error } = await createNewPost(supabase, {
+      //   title: value.title,
+      //   body: value.body,
+      //   tagIds: featureFlags?.tagsEnabled
+      //     ? value.tags.map((tag) => tag.id)
+      //     : [],
+      // });
 
-      setIsSubmitting(false);
+      // setIsSubmitting(false);
 
-      if (error) {
-        toast.error("Failed to create post", {
-          description: error.message,
-          position: "bottom-right",
-        });
-        return;
-      }
+      // if (error) {
+      //   toast.error("Failed to create post", {
+      //     description: error.message,
+      //     position: "bottom-right",
+      //   });
+      //   return;
+      // }
 
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["posts"] }),
-        queryClient.invalidateQueries({ queryKey: ["map-posts"] }),
-      ]);
+      // await Promise.all([
+      //   queryClient.invalidateQueries({ queryKey: ["posts"] }),
+      //   queryClient.invalidateQueries({ queryKey: ["map-posts"] }),
+      // ]);
 
-      form.reset();
-      clearLocation();
+      // form.reset();
+      // clearLocation();
+      console.log("Form submitted with values:", value);
 
       toast.success("Post created", {
         description: "Your post was saved successfully.",
@@ -155,9 +155,17 @@ export default function PostForm() {
   }, [featureFlags?.tagsEnabled, form]);
 
   return (
-    <Card className="w-full sm:max-w-md">
+    <div className="flex h-full w-full flex-col overflow-y-auto p-8 gap-4">
       <CardHeader>
-        <CardTitle>Create Post</CardTitle>
+        <div className="flex flex-row">
+          <CardTitle>Create Post</CardTitle>
+          <button
+            onClick={onClose}
+            className="absolute right-4 top-4 z-10 flex size-8 items-center justify-center rounded-full bg-black/30 text-white transition-colors hover:bg-black/50"
+          >
+            <XIcon className="size-4" />
+          </button>
+        </div>
         <CardDescription>
           Add a new post for the selected map location.
         </CardDescription>
@@ -171,15 +179,16 @@ export default function PostForm() {
           </CardDescription>
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex w-full flex-1 flex-col overflow-hidden">
         <form
           id="post-form"
+          className="flex flex-1 flex-col overflow-hidden"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
           }}
         >
-          <FieldGroup>
+          <FieldGroup className="flex-1">
             <form.Field name="title">
               {(field) => {
                 const isInvalid =
@@ -209,17 +218,21 @@ export default function PostForm() {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
-                  <Field data-invalid={isInvalid}>
+                  <Field
+                    data-invalid={isInvalid}
+                    className="flex flex-1 flex-col"
+                  >
                     <FieldLabel htmlFor={field.name}>Body</FieldLabel>
-                    <InputGroup>
-                      <MinimalTiptapEditor
+                    <InputGroup className="flex flex-1 flex-col">
+                      <SimpleEditor
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) =>
                           field.handleChange(e?.toString() || "")
                         }
                         placeholder="Share what makes this place worth pinning on the map."
-                        className="min-h-24 resize-none"
+                        className="flex-1"
+                        editorContentClassName="p-4"
                         aria-invalid={isInvalid}
                       />
                       <InputGroupAddon align="block-end">
@@ -283,6 +296,6 @@ export default function PostForm() {
           </Button>
         </Field>
       </CardFooter>
-    </Card>
+    </div>
   );
 }

@@ -24,14 +24,14 @@ function getUserLabel(user: ManageableUserRow) {
 
 function getRolePillClassName(role: AppRole) {
   if (role === "ADMIN") {
-    return "border-slate-900 bg-slate-900 text-white";
+    return "border-primary bg-primary text-primary-foreground";
   }
 
   if (role === "MODERATOR") {
-    return "border-sky-200 bg-sky-50 text-sky-800";
+    return "border-secondary bg-secondary text-secondary-foreground";
   }
 
-  return "border-slate-200 bg-slate-50 text-slate-700";
+  return "border-border bg-muted text-muted-foreground";
 }
 
 export default function Users({ role }: { role: AppRole | null }) {
@@ -110,7 +110,7 @@ export default function Users({ role }: { role: AppRole | null }) {
         header: "Username",
         cell: ({ row }) => {
           return (
-            <span className="block max-w-[16rem] truncate font-medium text-slate-900">
+            <span className="block max-w-[16rem] truncate font-medium text-foreground">
               {row.original.display_name}
             </span>
           );
@@ -121,7 +121,7 @@ export default function Users({ role }: { role: AppRole | null }) {
         header: "Email",
         cell: ({ row }) => {
           return (
-            <span className="block max-w-[20rem] truncate text-sm text-slate-700">
+            <span className="block max-w-[20rem] truncate text-sm text-muted-foreground">
               {row.original.email ?? "No email"}
             </span>
           );
@@ -132,7 +132,7 @@ export default function Users({ role }: { role: AppRole | null }) {
         header: "User ID",
         cell: ({ row }) => {
           return (
-            <span className="block max-w-[18rem] truncate font-mono text-xs text-slate-500">
+            <span className="block max-w-[18rem] truncate font-mono text-xs text-muted-foreground">
               {row.original.id}
             </span>
           );
@@ -171,11 +171,15 @@ export default function Users({ role }: { role: AppRole | null }) {
           const user = row.original;
 
           if (user.app_role === "ADMIN") {
-            return <span className="text-sm text-slate-500">Protected</span>;
+            return (
+              <span className="text-sm text-muted-foreground">Protected</span>
+            );
           }
 
           if (!canManageModerators) {
-            return <span className="text-sm text-slate-500">Admins only</span>;
+            return (
+              <span className="text-sm text-muted-foreground">Admins only</span>
+            );
           }
 
           const nextRole = user.app_role === "MODERATOR" ? "USER" : "MODERATOR";
@@ -239,7 +243,7 @@ export default function Users({ role }: { role: AppRole | null }) {
     <Card>
       <CardHeader className="space-y-2">
         <CardTitle>Manage moderators</CardTitle>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-muted-foreground">
           Promote users to moderators or remove moderator access. Names and
           emails come from the auth directory, while roles still come from
           profiles. Admin accounts stay read-only here.

@@ -1,6 +1,5 @@
 import LogoutButton from "@/components/LogoutButton";
 import { DataTable } from "@/components/DataTable";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getServerSessionWithRole, redirectToLogin } from "@/lib/auth/server";
@@ -14,6 +13,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 type MyPost = {
   id: number;
@@ -150,25 +150,28 @@ export default function MyPostsPage({
     : columns.filter((column) => column.id !== "tags");
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8">
+    <div className="min-h-screen bg-muted px-4 py-8">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-500">
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">
               {role}
             </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
               My Posts
             </h1>
-            <p className="max-w-2xl text-sm text-slate-600">
+            <p className="max-w-2xl text-sm text-muted-foreground">
               Review the posts you have submitted, track their publication
               status, and keep your account session under your control.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <Button asChild variant="outline">
-              <Link href="/">Back to map</Link>
-            </Button>
+            <Link
+              href="/"
+              className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border bg-background px-4 py-2 text-sm font-medium shadow-xs transition-all hover:bg-accent hover:text-accent-foreground"
+            >
+              Back to map
+            </Link>
             <LogoutButton />
           </div>
         </div>
@@ -197,6 +200,11 @@ export default function MyPostsPage({
                   </option>
                 ))}
               </select>
+              <div>
+                <Button variant="default" asChild className="w-full">
+                  <a href="/new-post">Add post</a>
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>

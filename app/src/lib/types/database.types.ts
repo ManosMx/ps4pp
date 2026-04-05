@@ -57,6 +57,30 @@ export type Database = {
         };
         Relationships: [];
       };
+      pages: {
+        Row: {
+          body: string | null;
+          created_at: string;
+          id: number;
+          slug: string | null;
+          title: string | null;
+        };
+        Insert: {
+          body?: string | null;
+          created_at: string;
+          id?: number;
+          slug?: string | null;
+          title?: string | null;
+        };
+        Update: {
+          body?: string | null;
+          created_at?: string;
+          id?: number;
+          slug?: string | null;
+          title?: string | null;
+        };
+        Relationships: [];
+      };
       post_tags: {
         Row: {
           post_id: number;
@@ -93,6 +117,7 @@ export type Database = {
           body: string;
           created_at: string;
           id: number;
+          image_path: string | null;
           location_id: number | null;
           moderator_id: string | null;
           status: string;
@@ -103,6 +128,7 @@ export type Database = {
           body?: string;
           created_at?: string;
           id?: number;
+          image_path?: string | null;
           location_id?: number | null;
           moderator_id?: string | null;
           status?: string;
@@ -113,6 +139,7 @@ export type Database = {
           body?: string;
           created_at?: string;
           id?: number;
+          image_path?: string | null;
           location_id?: number | null;
           moderator_id?: string | null;
           status?: string;
@@ -208,6 +235,15 @@ export type Database = {
       };
     };
     Functions: {
+      app_role_for_user: { Args: { user_id: string }; Returns: string };
+      approval_enabled: { Args: never; Returns: boolean };
+      can_create_posts: { Args: never; Returns: boolean };
+      can_moderate_post: { Args: { post_author_id: string }; Returns: boolean };
+      can_view_post: {
+        Args: { post_author_id: string; post_status: string };
+        Returns: boolean;
+      };
+      current_app_role: { Args: never; Returns: string };
       get_post_markers_in_bounds: {
         Args: {
           east_bound: number;
@@ -222,16 +258,20 @@ export type Database = {
           longitude: number;
         }[];
       };
+      is_admin: { Args: never; Returns: boolean };
+      is_moderator: { Args: never; Returns: boolean };
       list_manageable_users: {
-        Args: Record<PropertyKey, never>;
+        Args: never;
         Returns: {
           app_role: string;
-          created_at: string | null;
+          created_at: string;
           display_name: string;
-          email: string | null;
+          email: string;
           id: string;
         }[];
       };
+      tags_enabled: { Args: never; Returns: boolean };
+      users_enabled: { Args: never; Returns: boolean };
     };
     Enums: {
       status: "PENDING" | "PUBLISHED" | "REJECTED";

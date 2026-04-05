@@ -23,10 +23,10 @@ export default function TagsPage(
 ) {
   const queryClient = useQueryClient();
   const [tagValue, setTagValue] = useState("");
-  const [tagColor, setTagColor] = useState("#0f172a");
+  const [tagColor, setTagColor] = useState("#005249");
   const [editingTagId, setEditingTagId] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState("");
-  const [editingColor, setEditingColor] = useState("#0f172a");
+  const [editingColor, setEditingColor] = useState("#005249");
 
   const {
     data: tags = [],
@@ -132,13 +132,13 @@ export default function TagsPage(
   const startEditingTag = (tag: TagRow) => {
     setEditingTagId(tag.id);
     setEditingValue(tag.value);
-    setEditingColor(tag.color ?? "#0f172a");
+    setEditingColor(tag.color ?? "#005249");
   };
 
   const stopEditingTag = () => {
     setEditingTagId(null);
     setEditingValue("");
-    setEditingColor("#0f172a");
+    setEditingColor("#005249");
   };
 
   const onCreateTag = async () => {
@@ -166,7 +166,7 @@ export default function TagsPage(
       });
 
       setTagValue("");
-      setTagColor("#0f172a");
+      setTagColor("#005249");
 
       toast.success("Tag created", {
         description: `${normalizedValue} is now available.`,
@@ -290,16 +290,20 @@ export default function TagsPage(
         }
 
         if (!color) {
-          return <span className="text-sm text-slate-500">No color</span>;
+          return (
+            <span className="text-sm text-muted-foreground">No color</span>
+          );
         }
 
         return (
           <div className="flex items-center gap-2">
             <span
-              className="h-3 w-3 rounded-full border border-slate-300"
+              className="h-3 w-3 rounded-full border border-border"
               style={{ backgroundColor: color }}
             />
-            <span className="font-mono text-xs text-slate-600">{color}</span>
+            <span className="font-mono text-xs text-muted-foreground">
+              {color}
+            </span>
           </div>
         );
       },
@@ -384,7 +388,7 @@ export default function TagsPage(
         <Card>
           <CardHeader className="space-y-2">
             <CardTitle>Tags</CardTitle>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-muted-foreground">
               Review existing tags and create new ones for the rest of the app.
             </p>
           </CardHeader>

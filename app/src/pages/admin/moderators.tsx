@@ -7,16 +7,14 @@ export default function ModeratorsPage(
   props: InferGetServerSidePropsType<typeof getServerSideProps>,
 ) {
   return (
-    <main className="container mx-auto p-16 justify-center align-middle">
-      <div className="space-y-6">
-        <AdminTabs
-          activeTab="moderators"
-          role={props.role}
-          tagsEnabled={props.tagsEnabled}
-        />
-        <Users role={props.role} />
-      </div>
-    </main>
+    <div className="space-y-6">
+      <AdminTabs
+        activeTab="moderators"
+        role={props.role}
+        tagsEnabled={props.tagsEnabled}
+      />
+      <Users role={props.role} />
+    </div>
   );
 }
 

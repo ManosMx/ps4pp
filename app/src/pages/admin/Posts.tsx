@@ -87,10 +87,10 @@ const columns: ColumnDef<Post>[] = [
     cell: () => {
       return (
         <div className="flex space-x-2">
-          <button className="px-2 py-1 text-sm text-white bg-blue-500 rounded">
+          <button className="px-2 py-1 text-sm text-primary-foreground bg-primary rounded-lg">
             Edit
           </button>
-          <button className="px-2 py-1 text-sm text-white bg-red-500 rounded">
+          <button className="px-2 py-1 text-sm text-white bg-destructive rounded-lg">
             Delete
           </button>
         </div>

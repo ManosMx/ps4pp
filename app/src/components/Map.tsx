@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
 import { supabase } from "@/lib/supabase/client";
 import LocationMarker from "./LocationMarker";
 import { useQuery } from "@tanstack/react-query";
@@ -7,7 +7,8 @@ import { type TagOption } from "@/pages/api/get-all-tags";
 import { useState } from "react";
 import MapBoundsListener, { type MapViewBounds } from "./MapBoundsListener";
 import MapTagsFilter from "./MapTagsFilter";
-import PostViewSidebar from "./PostViewSidebar";
+import SideBar from "./Sidebar";
+import MapMarker from "./MapMarker";
 
 export default function Map() {
   const [selectedTags, setSelectedTags] = useState<TagOption[]>([]);
@@ -46,19 +47,33 @@ export default function Map() {
   };
 
   return (
-    <div className="relative flex h-full w-full overflow-hidden">
-      <div className="min-w-0 flex-1">
+    <div className="flex h-full">
+      <div className="flex-1">
         <MapContainer
           center={[35.51217733300905, 24.020619392395023]}
           zoom={14}
+          zoomControl={false}
           style={{ height: "100%", width: "100%" }}
         >
+          <ZoomControl position="bottomleft" />
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           <MapBoundsListener onChange={setBounds} />
           <MapTagsFilter onChange={setSelectedTags} />
+          <MapMarker
+            position={{ lat: 35.51, lng: 24.02 }}
+            label="Oak Canopy Restoration"
+            variant="info"
+            onClick={() => console.log("clicked")}
+          />
+
+          <MapMarker
+            position={{ lat: 35.52, lng: 24.03 }}
+            label="Soil Erosion Alert"
+            variant="alert"
+          />
           {markerPosts.map((post) => (
             <LocationMarker
               key={post.id}
@@ -68,7 +83,7 @@ export default function Map() {
           ))}
         </MapContainer>
       </div>
-      <PostViewSidebar
+      <SideBar
         postId={selectedPostId ?? 1}
         isOpen={sidebarOpen}
         close={() => setSidebarOpen(false)}

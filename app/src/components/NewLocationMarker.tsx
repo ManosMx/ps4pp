@@ -11,7 +11,11 @@ const icon = new Icon({
   iconAnchor: [12, 41],
 });
 
-export default function NewLocationMarker() {
+export default function NewLocationMarker({
+  onClick,
+}: {
+  onClick?: () => void;
+}) {
   const { setLocation, location, action } = useLocation();
 
   const map = useMapEvents({
@@ -21,6 +25,9 @@ export default function NewLocationMarker() {
         action: "create",
       });
       map.flyTo(e.latlng, map.getZoom());
+      if (onClick) {
+        onClick();
+      }
     },
     locationerror(e) {
       console.error(e);
