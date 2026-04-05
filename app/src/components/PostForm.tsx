@@ -28,6 +28,7 @@ import { useLocation } from "./context/LocationProvider";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import type { FeatureFlags } from "@/lib/types/types";
+import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
 import createNewPost from "@/pages/api/create-new-post";
 import getAllTags from "@/pages/api/get-all-tags";
 import getFeatureFlags from "@/pages/api/get-feature-flags";
@@ -155,7 +156,7 @@ export default function PostForm({ onClose }: { onClose: () => void }) {
   }, [featureFlags?.tagsEnabled, form]);
 
   return (
-    <div className="flex h-full w-full flex-col overflow-y-auto p-8 gap-4">
+    <div className="flex h-full w-full flex-col overflow-x-hidden overflow-y-auto py-8 gap-4">
       <CardHeader>
         <div className="flex flex-row">
           <CardTitle>Create Post</CardTitle>
@@ -188,7 +189,7 @@ export default function PostForm({ onClose }: { onClose: () => void }) {
             form.handleSubmit();
           }}
         >
-          <FieldGroup className="flex-1">
+          <FieldGroup className="flex-1 overflow-hidden">
             <form.Field name="title">
               {(field) => {
                 const isInvalid =
@@ -220,19 +221,19 @@ export default function PostForm({ onClose }: { onClose: () => void }) {
                 return (
                   <Field
                     data-invalid={isInvalid}
-                    className="flex flex-1 flex-col"
+                    className="flex flex-1 flex-col min-w-0"
                   >
                     <FieldLabel htmlFor={field.name}>Body</FieldLabel>
-                    <InputGroup className="flex flex-1 flex-col">
+                    <InputGroup className="flex flex-1 flex-col min-w-0">
                       <SimpleEditor
                         value={field.state.value}
                         onBlur={field.handleBlur}
-                        onChange={(e) =>
+                        onUpdate={(e) =>
                           field.handleChange(e?.toString() || "")
                         }
                         placeholder="Share what makes this place worth pinning on the map."
-                        className="flex-1"
-                        editorContentClassName="p-4"
+                        className="flex-1 border-md"
+                        editorClassName="py-4 px-4"
                         aria-invalid={isInvalid}
                       />
                       <InputGroupAddon align="block-end">
