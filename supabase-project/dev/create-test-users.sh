@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-API_AUTH="http://192.168.178.36:8000/auth/v1/admin/users"
-API_REST="http://192.168.178.36:8000/rest/v1"
 ANON=${ANON_KEY}
 SERVICE=${SERVICE_ROLE_KEY}
+PI_IP=$(hostname -I | awk '{print $1}')
+API_AUTH="http://$PI_IP:8000/auth/v1/admin/users"
+API_REST="http://$PI_IP:8000/rest/v1"
+echo "==> Detected Pi IP: $PI_IP"
 
 ensure_user() {
   local email="$1"
