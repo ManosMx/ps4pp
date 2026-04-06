@@ -5,9 +5,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y curl bash
 COPY package.json bun.lock ./
 RUN curl -fsSL https://bun.sh/install | bash
-    && export PATH="/root/.bun/bin:$PATH" \
-    && bun -v \
-    && bun install --frozen-lockfile
+RUN export PATH="/root/.bun/bin:$PATH"
+RUN bun install --frozen-lockfile
 
 # ── Stage 2: Build the Next.js app ──
 FROM node:20-slim AS builder
