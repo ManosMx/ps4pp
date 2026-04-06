@@ -4,6 +4,9 @@
 -- (auth, storage, realtime, supabase_functions, etc.) that are already
 -- created by the base Supabase stack.
 
+-- Ensure PostGIS is available in the extensions schema
+create extension if not exists postgis schema extensions;
+
 create table if not exists public.feature_flags (
   "tagsEnabled" boolean not null default false,
   "usersEnabled" boolean not null default false,
@@ -122,11 +125,18 @@ insert into public.feature_flags (id, "usersEnabled", "tagsEnabled", "approvalEn
 values (true, false, false, true)
 on conflict (id) do nothing;
 
-insert into storage.buckets (id, name, public)
-values ('post_images', 'post_images', true)
-on conflict (id) do update
-set name = excluded.name,
-    public = excluded.public;
+insert into storage.buckets (id, name)
+values ('post_images', 'post_images')
+on conflict (id) do nothing;
+
+-- Set bucket to public if the column exists (added by storage migrations)
+do $$
+begin
+  execute 'update storage.buckets set public = true where id = ''post_images''';
+exception when undefined_column then
+  null;
+end;
+$$;
 
 create or replace function public.app_role_for_user(user_id uuid)
 returns text
