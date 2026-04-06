@@ -13,7 +13,7 @@ export default function PostView({
   postId: number;
   onClose?: () => void;
 }) {
-  const { data: post, isLoading } = useQuery<Post | null, Error>({
+  const { data: post, isLoading } = useQuery({
     queryKey: ["post", postId],
     queryFn: async () => {
       const { data, error } = await getPostById(supabase, postId);
@@ -39,7 +39,7 @@ export default function PostView({
   return (
     <div className="flex h-full flex-col overflow-y-auto transition-[transform,opacity] duration-300 ease-out">
       {/* Hero image section */}
-      <div className="relative min-h-64 w-full bg-secondary">
+      <div className="relative min-h-32 w-full bg-secondary">
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
 
@@ -55,12 +55,12 @@ export default function PostView({
 
         {/* Observation label + title */}
         <div className="absolute bottom-0 left-0 right-0 p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/80">
-            Observation #{postId.toLocaleString()}
-          </p>
           <h2 className="mt-1 font-heading text-2xl font-bold leading-tight text-white">
             {post?.title ?? "Post"}
           </h2>
+          <p className="text-xs font-semibold tracking-[0.15em] text-white/80">
+            {post?.location?.address ?? "Unknown location"}
+          </p>
         </div>
       </div>
 
@@ -76,7 +76,7 @@ export default function PostView({
                 color: tag.color,
               }}
             >
-              {tag.name}
+              {tag.value}
             </span>
           ))}
         </div>

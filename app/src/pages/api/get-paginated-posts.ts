@@ -60,19 +60,6 @@ export default function getPostsPaginated(
   return query;
 }
 
-export type Post = {
-  id: number;
-  title: string;
-  body: string;
-  status: string;
-  location: string;
-  tags: {
-    id: number;
-    name: string;
-    color: string;
-  }[];
-};
-
 export type SearchFormValues = {
   title: string;
   status: string;

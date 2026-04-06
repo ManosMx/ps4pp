@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase/client";
 import getPageSlugs from "@/pages/api/get-page-slugs";
 
-const activeClass =
-  "text-sm font-medium text-primary underline underline-offset-[6px] decoration-2";
-const inactiveClass =
-  "text-sm font-medium text-gray-700 hover:text-primary transition-colors";
+const baseClass =
+  "relative text-sm font-medium transition-colors pb-1 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:bg-primary after:transition-all after:duration-200";
+const activeClass = `${baseClass} text-primary after:w-full`;
+const inactiveClass = `${baseClass} text-foreground hover:text-primary after:w-0 hover:after:w-full`;
 
 export default function Navbar({
   activeHash,
@@ -26,12 +26,12 @@ export default function Navbar({
   });
 
   return (
-    <nav className="sticky top-0 left-0 right-0 z-9999 flex w-full items-center justify-between bg-white px-8 py-4 shadow-sm">
+    <nav className="sticky top-0 left-0 right-0 z-9999 flex w-full items-center justify-between bg-background px-8 py-4 shadow-sm">
       {/* Left: Logo + Links */}
       <div className="flex items-center gap-8">
         <a
           href="#map"
-          className="text-lg font-bold tracking-tight text-primary"
+          className="font-heading text-lg font-bold tracking-tight text-primary"
         >
           PS4PP
         </a>
