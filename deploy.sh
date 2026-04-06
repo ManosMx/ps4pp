@@ -31,9 +31,9 @@ if [ -f dev/schema.sql ]; then
   echo "==> Applying schema.sql..."
   docker exec -i supabase-db psql -U supabase_admin -d postgres < dev/schema.sql || true
 fi
-if [ -f dev/app_rbac.sql ]; then
-  echo "==> Applying app_rbac.sql..."
-  docker exec -i supabase-db psql -U supabase_admin -d postgres < dev/app_rbac.sql || true
+if [ -f dev/app-bac.sql ]; then
+  echo "==> Applying app-bac.sql..."
+  docker exec -i supabase-db psql -U supabase_admin -d postgres < dev/app-bac.sql || true
 fi
 cd ..
 
