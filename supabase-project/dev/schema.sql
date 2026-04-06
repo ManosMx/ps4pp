@@ -4,8 +4,6 @@
 -- (auth, storage, realtime, supabase_functions, etc.) that are already
 -- created by the base Supabase stack.
 
-begin;
-
 create table if not exists public.feature_flags (
   "tagsEnabled" boolean not null default false,
   "usersEnabled" boolean not null default false,
@@ -668,5 +666,3 @@ create policy post_images_public_read
   on storage.objects
   for select
   using (bucket_id = 'post_images');
-
-commit;

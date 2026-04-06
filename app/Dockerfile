@@ -1,8 +1,8 @@
 # ── Stage 1: Install dependencies ──
 FROM node:20-slim AS deps
 WORKDIR /app
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+COPY package.json bun.lockb ./
+RUN bun install --frozen-lockfile
 
 # ── Stage 2: Build the Next.js app ──
 FROM node:20-slim AS builder
@@ -17,7 +17,7 @@ ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-RUN yarn build
+RUN bun build
 
 # ── Stage 3: Production image ──
 FROM node:20-slim AS runner
