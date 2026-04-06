@@ -1,3 +1,4 @@
+// @ts-expect-error this is not a n error, but a Next.js Pages Router requirement to import global CSS here
 import "@/styles/globals.css";
 
 // Tiptap global SCSS — must be imported here (Next.js Pages Router restriction)

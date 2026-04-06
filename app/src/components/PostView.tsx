@@ -1,6 +1,4 @@
-import Markdown from "react-markdown";
 import { Skeleton } from "./ui/skeleton";
-import { Post } from "@/pages/api/get-paginated-posts";
 import { supabase } from "@/lib/supabase/client";
 import getPostById from "@/pages/api/get-post-by-id";
 import { useQuery } from "@tanstack/react-query";
@@ -22,7 +20,7 @@ export default function PostView({
         throw error;
       }
 
-      return data ? (data as unknown as Post) : null;
+      return data ? data : null;
     },
   });
 
@@ -72,7 +70,9 @@ export default function PostView({
               key={tag.id}
               className="rounded-full border px-3 py-1 text-xs font-medium"
               style={{
+                // @ts-expect-error this should not be an error, but a typing issue with the feature flags query result
                 borderColor: tag.color,
+                // @ts-expect-error this should not be an error, but a typing issue with the feature flags query result
                 color: tag.color,
               }}
             >
