@@ -1,8 +1,8 @@
 # ── Stage 1: Install dependencies ──
-FROM node:20-slim AS deps
+FROM node:20-bullseye AS deps
 WORKDIR /app
 # Install dependencies for Bun
-RUN apk add --no-cache curl bash
+RUN apt-get update && apt-get install -y curl bash
 COPY package.json bun.lock ./
 RUN curl -fsSL https://bun.sh/install | bash -s -- --bun-dir /root/.bun --no-modify-path \
     && export PATH="/root/.bun/bin:$PATH" \
