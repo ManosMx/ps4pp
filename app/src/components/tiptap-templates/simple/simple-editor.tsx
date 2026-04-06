@@ -18,6 +18,7 @@ import { TextAlign } from "@tiptap/extension-text-align";
 import { Typography } from "@tiptap/extension-typography";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Placeholder, Selection } from "@tiptap/extensions";
+import Youtube from "@tiptap/extension-youtube";
 
 // --- UI Primitives ---
 import { Button } from "@/components/tiptap-ui-primitive/button";
@@ -272,10 +273,16 @@ export function SimpleEditor({
       Typography,
       Selection,
       Placeholder.configure({ placeholder: () => placeholder }),
+      Youtube.configure({
+        controls: false,
+        nocookie: true,
+        height: 300,
+        width: 530,
+      }),
       ImageUploadNode.configure({
         accept: "image/*",
         maxSize: MAX_FILE_SIZE,
-        limit: 3,
+        limit: 1,
         upload: handleImageUpload,
         onError: (error) => console.error("Upload failed:", error),
       }),

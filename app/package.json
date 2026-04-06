@@ -30,6 +30,7 @@
     "@tiptap/extension-superscript": "^3.22.2",
     "@tiptap/extension-text-align": "^3.22.2",
     "@tiptap/extension-typography": "^3.22.2",
+    "@tiptap/extension-youtube": "^3.22.2",
     "@tiptap/extensions": "^3.22.2",
     "@tiptap/pm": "^3.22.2",
     "@tiptap/react": "^3.22.2",
