@@ -25,7 +25,7 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 # Build the app
-RUN bun build
+RUN bun run next build && bun run next export
 
 # ── Stage 2: Production ──
 FROM node:20-bullseye AS runner
