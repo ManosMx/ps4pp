@@ -1,8 +1,6 @@
 -- App-specific auth bootstrap and RBAC policies.
 -- Run this against the database that backs the app workspace.
 
-begin;
-
 create extension if not exists pgcrypto;
 
 insert into public.feature_flags (id, "usersEnabled", "tagsEnabled", "approvalEnabled")
@@ -556,5 +554,3 @@ create policy "post_tags_delete_for_owned_posts"
         and posts.author_id = (select auth.uid())
     )
   );
-
-commit;
