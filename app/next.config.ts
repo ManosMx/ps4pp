@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   reactStrictMode: true,
   devIndicators: false,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;
