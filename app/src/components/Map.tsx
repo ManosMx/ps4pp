@@ -61,19 +61,6 @@ export default function Map() {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           <MapBoundsListener onChange={setBounds} />
-          <MapTagsFilter onChange={setSelectedTags} />
-          <MapMarker
-            position={{ lat: 35.51, lng: 24.02 }}
-            label="Oak Canopy Restoration"
-            variant="info"
-            onClick={() => console.log("clicked")}
-          />
-
-          <MapMarker
-            position={{ lat: 35.52, lng: 24.03 }}
-            label="Soil Erosion Alert"
-            variant="alert"
-          />
           {markerPosts.map((post) => (
             <LocationMarker
               key={post.id}

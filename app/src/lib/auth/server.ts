@@ -142,8 +142,6 @@ export async function getServerSessionWithRole(
     };
   }
 
-  console.log("User profile:", user, profile);
-
   return {
     supabase,
     user,

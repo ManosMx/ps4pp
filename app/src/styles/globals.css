@@ -1,5 +1,5 @@
-@import './_variables.scss';
-@import './_keyframe-animations.scss';
+@import "./_variables.scss";
+@import "./_keyframe-animations.scss";
 
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -125,4 +125,54 @@ a {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.heading-node {
+  font-family: var(--font-manrope), Manrope, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--foreground);
+}
+
+.text-node {
+  font-family: var(--font-inter), Inter, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--foreground);
+}
+
+.text-node a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.text-node a:hover {
+  color: var(--secondary);
+}
+
+.list-node {
+  font-family: var(--font-inter), Inter, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--foreground);
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.list-node li {
+  margin: 0.25rem 0;
+}
+
+.block-node {
+  font-family: var(--font-inter), Inter, sans-serif;
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+  border-left: 3px solid var(--primary);
+  padding-left: 1rem;
+  margin: 0.75rem 0;
 }

@@ -151,7 +151,6 @@ export default function PostForm() {
 
       form.reset();
       clearLocation();
-      console.log("Form submitted with values:", value);
 
       setIsSubmitting(false);
 
