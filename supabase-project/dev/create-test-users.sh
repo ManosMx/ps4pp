@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-API_AUTH="http://localhost:8000/auth/v1/admin/users"
-API_REST="http://localhost:8000/rest/v1"
+API_AUTH="http://192.168.178.36:8000/auth/v1/admin/users"
+API_REST="http://192.168.178.36:8000/rest/v1"
 ANON=${ANON_KEY}
 SERVICE=${SERVICE_ROLE_KEY}
 

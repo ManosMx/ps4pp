@@ -4,7 +4,7 @@ WORKDIR /app
 # Install dependencies for Bun
 RUN apt-get update && apt-get install -y curl bash
 COPY package.json bun.lock ./
-RUN curl -fsSL https://bun.sh/install | bash -s -- --bun-dir /root/.bun --no-modify-path \
+RUN curl -fsSL https://bun.sh/install | bash
     && export PATH="/root/.bun/bin:$PATH" \
     && bun -v \
     && bun install --frozen-lockfile
