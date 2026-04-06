@@ -6,7 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y curl bash
 
 # Install Bun
-RUN curl -fsSL https://bun.sh/install | bash -s -- --bun-dir /root/.bun --no-modify-path
+RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH="/root/.bun/bin:$PATH"
 
 # Copy package files
