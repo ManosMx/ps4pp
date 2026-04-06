@@ -1,38 +1,33 @@
-# ── Stage 1: Install dependencies ──
-FROM node:20-bullseye AS deps
-WORKDIR /app
-# Install dependencies for Bun
-RUN apt-get update && apt-get install -y curl bash
-COPY package.json bun.lock ./
-RUN curl -fsSL https://bun.sh/install | bash
-# Add Bun to PATH permanently
-ENV PATH="/root/.bun/bin:$PATH"
-RUN bun install --frozen-lockfile
-
-# ── Stage 2: Build the Next.js app ──
+# ── Stage 1: Builder ──
 FROM node:20-bullseye AS builder
 WORKDIR /app
+
+# Install curl/bash
 RUN apt-get update && apt-get install -y curl bash
-RUN curl -fsSL https://bun.sh/install | bash
-# Add Bun to PATH permanently
+
+# Install Bun
+RUN curl -fsSL https://bun.sh/install | bash -s -- --bun-dir /root/.bun --no-modify-path
 ENV PATH="/root/.bun/bin:$PATH"
-COPY --from=deps /app/node_modules ./node_modules
+
+# Copy package files
+COPY package.json bun.lock ./
+
+# Install dependencies
+RUN bun install --frozen-lockfile
+
+# Copy source code
 COPY . .
 
-# Build-time env vars (overridden at runtime via docker-compose)
+# Build-time env vars
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
-
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-RUN curl -fsSL https://bun.sh/install | bash
-# Add Bun to PATH permanently
-ENV PATH="/root/.bun/bin:$PATH"
-
+# Build the app
 RUN bun build
 
-# ── Stage 3: Production image ──
+# ── Stage 2: Production ──
 FROM node:20-bullseye AS runner
 WORKDIR /app
 
@@ -40,7 +35,7 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Copy standalone output + static assets
+# Copy standalone output
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
