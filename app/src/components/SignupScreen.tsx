@@ -132,7 +132,7 @@ export default function SignupScreen() {
     <AuthLayout>
       {/* Heading */}
       <h1 className="text-center text-2xl font-bold text-gray-900">
-        Join the Tapestry
+        Join the PS4PP
       </h1>
       <p className="mt-2 text-center text-sm italic text-gray-500">
         Start mapping your community stories and insights.

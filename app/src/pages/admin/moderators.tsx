@@ -7,7 +7,7 @@ export default function ModeratorsPage(
   props: InferGetServerSidePropsType<typeof getServerSideProps>,
 ) {
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col items-center h-full py-16 gap-8 bg-muted">
       <AdminTabs
         activeTab="moderators"
         role={props.role}

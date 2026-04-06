@@ -23,19 +23,19 @@ export default function AdminTabs({
       value={activeTab}
       onValueChange={(value) => {
         if (value === "posts") {
-          void router.push("/admin/posts");
+          router.push("/admin/posts");
         }
 
         if (value === "tags" && canSeeAdminOnlyTabs && tagsEnabled) {
-          void router.push("/admin/tags");
+          router.push("/admin/tags");
         }
 
         if (value === "moderators" && canSeeAdminOnlyTabs) {
-          void router.push("/admin/moderators");
+          router.push("/admin/moderators");
         }
 
         if (value === "pages" && canSeeAdminOnlyTabs) {
-          void router.push("/admin/pages");
+          router.push("/admin/pages");
         }
       }}
     >

@@ -1,29 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireAdminPage } from "@/lib/auth/server";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import AdminTabs from "./AdminTabs";
+import PagesAdmin from "./PagesAdmin";
 
 export default function PagesPage(
   props: InferGetServerSidePropsType<typeof getServerSideProps>,
 ) {
   return (
-    <main className="container mx-auto p-16 justify-center align-middle">
-      <div className="space-y-6">
-        <AdminTabs
-          activeTab="pages"
-          role={props.role}
-          tagsEnabled={props.tagsEnabled}
-        />
-        <Card>
-          <CardHeader>
-            <CardTitle>Pages</CardTitle>
-          </CardHeader>
-          <CardContent>
-            Static page management has not been implemented yet.
-          </CardContent>
-        </Card>
-      </div>
-    </main>
+    <div className="flex flex-col items-center h-full py-16 gap-8 bg-muted">
+      <AdminTabs
+        activeTab="pages"
+        role={props.role}
+        tagsEnabled={props.tagsEnabled}
+      />
+      <PagesAdmin />
+    </div>
   );
 }
 

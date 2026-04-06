@@ -110,14 +110,15 @@ export default function PostForm() {
     onSubmit: async ({ value }) => {
       setIsSubmitting(true);
 
-      const { error: locationError } = await createNewLocation(supabase, {
-        latitude: location?.lat ?? 0,
-        longitude: location?.lng ?? 0,
-      });
+      const { data: locationId, error: locationError } =
+        await createNewLocation(supabase, {
+          latitude: location?.lat ?? 0,
+          longitude: location?.lng ?? 0,
+        });
 
-      if (locationError) {
+      if (locationError || !locationId) {
         toast.error("Failed to create location", {
-          description: locationError.message,
+          description: locationError?.message || "Error in location creation.",
           position: "bottom-right",
         });
         setIsSubmitting(false);
@@ -127,6 +128,7 @@ export default function PostForm() {
       const { error } = await createNewPost(supabase, {
         title: value.title,
         body: value.body,
+        locationId: locationId ?? null,
         tagIds: featureFlags?.tagsEnabled
           ? value.tags.map((tag) => tag.id)
           : [],

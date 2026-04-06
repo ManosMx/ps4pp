@@ -94,7 +94,7 @@ export default function LoginScreen() {
     <AuthLayout>
       {/* Heading */}
       <h1 className="text-center text-2xl font-bold text-gray-900">
-        Welcome back to the Tapestry
+        Welcome back to the PS4PP
       </h1>
       <p className="mt-2 text-center text-sm italic text-gray-500">
         Continue mapping your community stories and insights.

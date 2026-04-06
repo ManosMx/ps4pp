@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import Markdown from "react-markdown";
 import { supabase } from "@/lib/supabase/client";
 import getPageBySlug from "@/pages/api/get-page-by-slug";
 import { Card } from "./ui/card";

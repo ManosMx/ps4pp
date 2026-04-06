@@ -240,8 +240,8 @@ export default function Users({ role }: { role: AppRole | null }) {
   }
 
   return (
-    <Card>
-      <CardHeader className="space-y-2">
+    <Card className="w-3/4">
+      <CardHeader className="flex flex-col gap-4">
         <CardTitle>Manage moderators</CardTitle>
         <p className="text-sm text-muted-foreground">
           Promote users to moderators or remove moderator access. Names and
@@ -249,7 +249,7 @@ export default function Users({ role }: { role: AppRole | null }) {
           profiles. Admin accounts stay read-only here.
         </p>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <Input
             value={usernameFilter}
