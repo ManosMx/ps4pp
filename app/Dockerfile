@@ -13,11 +13,9 @@ RUN bun install --frozen-lockfile
 FROM node:20-bullseye AS builder
 WORKDIR /app
 RUN apt-get update && apt-get install -y curl bash
-COPY package.json bun.lock ./
 RUN curl -fsSL https://bun.sh/install | bash
 # Add Bun to PATH permanently
 ENV PATH="/root/.bun/bin:$PATH"
-RUN bun install --frozen-lockfile
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -27,6 +25,10 @@ ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+RUN curl -fsSL https://bun.sh/install | bash
+# Add Bun to PATH permanently
+ENV PATH="/root/.bun/bin:$PATH"
 
 RUN bun build
 
