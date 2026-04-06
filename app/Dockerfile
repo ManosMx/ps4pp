@@ -5,12 +5,19 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y curl bash
 COPY package.json bun.lock ./
 RUN curl -fsSL https://bun.sh/install | bash
-RUN export PATH="/root/.bun/bin:$PATH"
+# Add Bun to PATH permanently
+ENV PATH="/root/.bun/bin:$PATH"
 RUN bun install --frozen-lockfile
 
 # ── Stage 2: Build the Next.js app ──
-FROM node:20-slim AS builder
+FROM node:20-bullseye AS builder
 WORKDIR /app
+RUN apt-get update && apt-get install -y curl bash
+COPY package.json bun.lock ./
+RUN curl -fsSL https://bun.sh/install | bash
+# Add Bun to PATH permanently
+ENV PATH="/root/.bun/bin:$PATH"
+RUN bun install --frozen-lockfile
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -24,7 +31,7 @@ ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 RUN bun build
 
 # ── Stage 3: Production image ──
-FROM node:20-slim AS runner
+FROM node:20-bullseye AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
