@@ -1,13 +1,13 @@
 # ── Stage 1: Install dependencies ──
 FROM node:20-slim AS deps
 WORKDIR /app
+# Install dependencies for Bun
+RUN apk add --no-cache curl bash
 COPY package.json bun.lock ./
-# Install Bun
-RUN curl -fsSL https://bun.sh/install | bash
-
-# Add Bun to PATH
-ENV PATH="/root/.bun/bin:$PATH"
-RUN bun install --frozen-lockfile
+RUN curl -fsSL https://bun.sh/install | bash -s -- --bun-dir /root/.bun --no-modify-path \
+    && export PATH="/root/.bun/bin:$PATH" \
+    && bun -v \
+    && bun install --frozen-lockfile
 
 # ── Stage 2: Build the Next.js app ──
 FROM node:20-slim AS builder
