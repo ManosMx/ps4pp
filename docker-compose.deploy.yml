@@ -1,0 +1,32 @@
+# docker-compose.deploy.yml
+# Run on the Raspberry Pi:
+#   docker compose -f docker-compose.deploy.yml up -d
+#
+# This adds the Next.js app container on top of the Supabase stack.
+# Supabase containers are defined in supabase-project/docker-compose.yml
+# and must be started FIRST from the supabase-project/ directory.
+
+name: ps4pp-app
+
+services:
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://localhost:8000}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    container_name: ps4pp-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://localhost:8000}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    # Connect to the Supabase network so the app can reach Kong at supabase-kong:8000
+    networks:
+      - supabase_default
+
+networks:
+  supabase_default:
+    external: true

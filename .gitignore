@@ -1,2 +1,8 @@
-supabase
-supabase-project
+/supabase
+
+# Track supabase-project config but not secrets or data
+supabase-project/.env
+supabase-project/volumes/
+
+# Deploy env
+.env.deploy
