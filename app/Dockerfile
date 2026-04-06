@@ -2,6 +2,11 @@
 FROM node:20-slim AS deps
 WORKDIR /app
 COPY package.json bun.lock ./
+# Install Bun
+RUN curl -fsSL https://bun.sh/install | bash
+
+# Add Bun to PATH
+ENV PATH="/root/.bun/bin:$PATH"
 RUN bun install --frozen-lockfile
 
 # ── Stage 2: Build the Next.js app ──
