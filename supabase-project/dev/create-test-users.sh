@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ANON_KEY=$(grep '^ANON_KEY=' ../.env | cut -d'=' -f2)
+SERVICE_ROLE_KEY=$(grep '^SERVICE_ROLE_KEY=' ../.env | cut -d'=' -f2)
+
 ANON=${ANON_KEY}
 SERVICE=${SERVICE_ROLE_KEY}
 PI_IP=$(hostname -I | awk '{print $1}')
