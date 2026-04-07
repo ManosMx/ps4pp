@@ -1,7 +1,7 @@
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { requireAdminPage } from "@/lib/auth/server";
 import AdminTabs from "./AdminTabs";
-import Users from "./users";
+import Users from "./Users";
 
 export default function ModeratorsPage(
   props: InferGetServerSidePropsType<typeof getServerSideProps>,
