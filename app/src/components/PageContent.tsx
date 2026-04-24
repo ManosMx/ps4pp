@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase/client";
-import getPageBySlug from "@/pages/api/get-page-by-slug";
+import getPageBySlug from "@/lib/queries/get-page-by-slug";
 import { Card } from "./ui/card";
 
 export default function PageContent({ slug }: { slug: string }) {

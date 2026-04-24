@@ -1,6 +1,6 @@
 import { Skeleton } from "./ui/skeleton";
 import { supabase } from "@/lib/supabase/client";
-import getPostById from "@/pages/api/get-post-by-id";
+import getPostById from "@/lib/queries/get-post-by-id";
 import { useQuery } from "@tanstack/react-query";
 import { XIcon } from "lucide-react";
 

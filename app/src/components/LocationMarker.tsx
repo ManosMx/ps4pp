@@ -1,6 +1,6 @@
 import { Icon } from "leaflet";
 import { Marker, useMap } from "react-leaflet";
-import { MapPost } from "@/pages/api/get-map-posts";
+import { MapPost } from "@/lib/queries/get-map-posts";
 
 const icon = new Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",

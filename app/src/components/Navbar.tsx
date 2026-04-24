@@ -2,7 +2,7 @@ import Link from "next/link";
 import { MapPinIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase/client";
-import getPageSlugs from "@/pages/api/get-page-slugs";
+import getPageSlugs from "@/lib/queries/get-page-slugs";
 
 const baseClass =
   "relative text-sm font-medium transition-colors pb-1 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:bg-primary after:transition-all after:duration-200";

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase/client";
 import type { FeatureFlags } from "@/lib/types/types";
-import getFeatureFlags from "@/pages/api/get-feature-flags";
+import getFeatureFlags from "@/lib/queries/get-feature-flags";
 
 export const defaultFeatureFlags: FeatureFlags = {
   tagsEnabled: false,

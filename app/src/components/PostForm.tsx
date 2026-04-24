@@ -23,13 +23,13 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import type { FeatureFlags } from "@/lib/types/types";
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
-import createNewPost from "@/pages/api/create-new-post";
-import getAllTags from "@/pages/api/get-all-tags";
-import getFeatureFlags from "@/pages/api/get-feature-flags";
+import createNewPost from "@/lib/queries/create-new-post";
+import getAllTags from "@/lib/queries/get-all-tags";
+import getFeatureFlags from "@/lib/queries/get-feature-flags";
 import ComboboxMultiple from "./ui/combobox-multiple";
 import { toast } from "sonner";
 import { XIcon } from "lucide-react";
-import createNewLocation from "@/pages/api/create-new-location";
+import createNewLocation from "@/lib/queries/create-new-location";
 
 const defaultFeatureFlags: FeatureFlags = {
   tagsEnabled: false,

@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase/client";
 import { FeatureFlags } from "@/lib/types/types";
-import getAllTags, { TagOption } from "@/pages/api/get-all-tags";
-import getFeatureFlags from "@/pages/api/get-feature-flags";
+import getAllTags, { TagOption } from "@/lib/queries/get-all-tags";
+import getFeatureFlags from "@/lib/queries/get-feature-flags";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useReducer } from "react";
 import { Button } from "./ui/button";
