@@ -18,10 +18,8 @@ RUN bun install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Build-time env vars
-ARG NEXT_PUBLIC_SUPABASE_URL
+# Only the anon key is baked in at build time (public, safe to embed)
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
-ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 # Build the app

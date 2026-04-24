@@ -15,21 +15,46 @@ The guide covers:
 
 ## What's Included
 
-This Docker Compose configuration includes the following services:
+Always-on services:
 
-- **[Studio](https://github.com/supabase/supabase/tree/master/apps/studio)** - A dashboard for managing your self-hosted Supabase project
-- **[Kong](https://github.com/Kong/kong)** - Kong API gateway
-- **[Auth](https://github.com/supabase/auth)** - JWT-based authentication API for user sign-ups, logins, and session management
-- **[PostgREST](https://github.com/PostgREST/postgrest)** - Web server that turns your PostgreSQL database directly into a RESTful API
-- **[Realtime](https://github.com/supabase/realtime)** - Elixir server that listens to PostgreSQL database changes and broadcasts them over websockets
-- **[Storage](https://github.com/supabase/storage)** - RESTful API for managing files in S3, with Postgres handling permissions
-- **[imgproxy](https://github.com/imgproxy/imgproxy)** - Fast and secure image processing server
-- **[postgres-meta](https://github.com/supabase/postgres-meta)** - RESTful API for managing Postgres (fetch tables, add roles, run queries)
-- **[PostgreSQL](https://github.com/supabase/postgres)** - Object-relational database with over 30 years of active development
-- **[Edge Runtime](https://github.com/supabase/edge-runtime)** - Web server based on Deno runtime for running JavaScript, TypeScript, and WASM services
-- **[Logflare](https://github.com/Logflare/logflare)** - Log management and event analytics platform
-- **[Vector](https://github.com/vectordotdev/vector)** - High-performance observability data pipeline for logs
-- **[Supavisor](https://github.com/supabase/supavisor)** - Supabase's Postgres connection pooler
+- **[Caddy](https://github.com/caddyserver/caddy)** - API gateway / reverse proxy (replaces Kong)
+- **[Auth](https://github.com/supabase/auth)** - JWT-based authentication (GoTrue)
+- **[PostgREST](https://github.com/PostgREST/postgrest)** - Auto-generated REST API from Postgres schema
+- **[Storage](https://github.com/supabase/storage)** - File storage API with Postgres-backed permissions
+- **[imgproxy](https://github.com/imgproxy/imgproxy)** - On-demand image resizing and transformation
+- **[postgres-meta](https://github.com/supabase/postgres-meta)** - REST API for Postgres introspection
+- **[PostgreSQL](https://github.com/supabase/postgres)** - Primary database
+- **[Supavisor](https://github.com/supabase/supavisor)** - Postgres connection pooler
+
+On-demand services (use profiles, see below):
+
+- **[Studio](https://github.com/supabase/supabase/tree/master/apps/studio)** - Admin dashboard (`studio` profile)
+
+## Running Studio
+
+Studio is not started by default to save ~768 MB of RAM, and is restricted to localhost-only access in Caddy. Access it via SSH tunnel — it is never reachable from the public internet.
+
+**1. Open an SSH tunnel from your local machine:**
+```bash
+ssh -L 8000:localhost:8000 user@<server-ip>
+```
+
+**2. Start the Studio container on the server:**
+```bash
+docker compose --profile studio up -d studio
+```
+
+**3. Open the dashboard in your browser:**
+```
+http://localhost:8000
+```
+
+**4. Stop Studio when done:**
+```bash
+docker compose --profile studio down studio
+```
+
+Starting Studio takes ~30 seconds for the healthcheck to pass. The basic auth credentials are set via `DASHBOARD_USERNAME` and `DASHBOARD_PASSWORD` in `.env`.
 
 ## Documentation
 

@@ -50,6 +50,7 @@ export default async function addressReverseLookup({
 }: AddressReverseLookupProps) {
   const response = await fetch(
     `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&format=geocodejson&layer=address`,
+    { headers: { "User-Agent": "ps4pp/1.0 (https://github.com/MatseMx/ps4pp)" } },
   );
 
   if (!response.ok) {
