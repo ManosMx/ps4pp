@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import Seo from "@/components/Seo";
 // @ts-expect-error -- TODO: fix this
 import "leaflet/dist/leaflet.css";
 import Navbar from "@/components/Navbar";
@@ -33,10 +34,13 @@ export default function Home({
   const hash = useHash();
 
   return (
-    <div className="flex h-screen w-screen flex-col">
-      <Navbar activeHash={hash} showMyPosts={showMyPosts} />
-      {hash === "map" ? <Map /> : <PageContent slug={hash} />}
-    </div>
+    <>
+      <Seo canonical="/" />
+      <div className="flex h-screen w-screen flex-col">
+        <Navbar activeHash={hash} showMyPosts={showMyPosts} />
+        {hash === "map" ? <Map /> : <PageContent slug={hash} />}
+      </div>
+    </>
   );
 }
 

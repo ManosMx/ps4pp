@@ -1,40 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# ps4pp — Next.js App
 
-## Getting Started
+## Prerequisites
 
-First, run the development server:
+- [Docker](https://docs.docker.com/get-docker/) + Docker Compose plugin
+- [Bun](https://bun.sh/) (`curl -fsSL https://bun.sh/install | bash`)
+
+---
+
+## Dev setup
+
+### 1 — Start the Supabase stack
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+cd supabase-project
+docker compose up -d
+```
+
+Wait a few seconds for Postgres to be healthy:
+```bash
+docker ps --format 'table {{.Names}}\t{{.Status}}'
+# supabase-db should show (healthy)
+```
+
+The stack exposes the API at `http://localhost:8000`.
+
+### 2 — Install app dependencies
+
+```bash
+cd app
+bun install
+```
+
+### 3 — Configure environment
+
+`app/.env.local` is already checked in with the correct dev defaults:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<demo anon key>
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA   # always-pass test key
+```
+
+No edits needed for local dev.
+
+### 4 — Start the dev server
+
+```bash
+cd app
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000/app](http://localhost:3000/app).
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+---
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Useful commands
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+| Task | Command (run from `app/`) |
+|---|---|
+| Dev server | `bun dev` |
+| Production build | `bun run build` |
+| Lint | `bun lint` |
+| Generate Supabase types | `bun run gen-types` (requires local stack running) |
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Supabase stack
 
-## Learn More
+| Task | Command (run from `supabase-project/`) |
+|---|---|
+| Start | `docker compose up -d` |
+| Stop | `docker compose down` |
+| Reset (wipe DB) | `bash reset.sh` |
+| Open Studio | `docker compose --profile studio up -d studio` then visit `http://localhost:8000` |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+## Architecture
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+browser → Next.js dev server (localhost:3000/app)
+               ↓
+          Supabase stack (localhost:8000)
+               ├── Caddy (reverse proxy)
+               ├── GoTrue (auth)
+               ├── PostgREST (REST API)
+               ├── Storage
+               └── PostgreSQL
+```
 
-## Deploy on Vercel
+Server-side code uses `SUPABASE_URL` (set to `http://caddy:8000` in Docker, `http://localhost:8000` in dev). Client-side code uses `NEXT_PUBLIC_SUPABASE_URL`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+## Production deployment
+
+See [audit.md](../audit.md) for the full step-by-step deployment guide.
