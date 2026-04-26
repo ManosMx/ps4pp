@@ -7,6 +7,7 @@ import { type TagOption } from "@/lib/queries//get-all-tags";
 import { useState } from "react";
 import MapBoundsListener, { type MapViewBounds } from "./MapBoundsListener";
 import MapTagsFilter from "./MapTagsFilter";
+import MapUserLocation from "./MapUserLocation";
 import SideBar from "./Sidebar";
 import MapMarker from "./MapMarker";
 
@@ -60,6 +61,7 @@ export default function Map() {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
+          <MapUserLocation />
           <MapBoundsListener onChange={setBounds} />
           {markerPosts.map((post) => (
             <LocationMarker
