@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase/client";
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import AuthLayout, { useAuthGuard } from "@/components/AuthLayout";
 import Link from "next/link";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -23,6 +24,8 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -34,13 +37,21 @@ export default function LoginScreen() {
       return;
     }
 
+    if (!captchaToken) {
+      toast.error("Please complete the CAPTCHA", { position: "bottom-right" });
+      return;
+    }
+
     setIsSubmitting(true);
 
     const result = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
+      options: { captchaToken },
     });
 
+    turnstileRef.current?.reset();
+    setCaptchaToken(null);
     setIsSubmitting(false);
 
     if (result.error) {
@@ -175,10 +186,19 @@ export default function LoginScreen() {
           </div>
         </div>
 
+        {/* CAPTCHA */}
+        <Turnstile
+          ref={turnstileRef}
+          siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+          onSuccess={setCaptchaToken}
+          onExpire={() => setCaptchaToken(null)}
+          options={{ theme: "light" }}
+        />
+
         {/* Submit */}
         <button
           type="submit"
-          disabled={isSubmitting || isGoogleSubmitting}
+          disabled={isSubmitting || isGoogleSubmitting || !captchaToken}
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
         >
           {isSubmitting ? "Signing in..." : "Sign In"}

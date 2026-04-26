@@ -18,9 +18,11 @@ RUN bun install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Only the anon key is baked in at build time (public, safe to embed)
+# Public keys baked in at build time (NEXT_PUBLIC_ vars are embedded in the JS bundle)
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY
+ENV NEXT_PUBLIC_TURNSTILE_SITE_KEY=$NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
 # Build the app
 RUN bun run next build

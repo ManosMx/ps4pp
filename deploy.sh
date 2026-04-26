@@ -20,30 +20,62 @@ ENV_FILE="supabase-project/.env"
 # ── Step 0: Secrets guard ──
 # Refuse to deploy with the known demo secrets from .env.example.
 # If not yet initialised, run generate-keys.sh automatically.
-DEMO_SENTINEL="your-super-secret-and-long-postgres-password"
+#
+# We check two sentinels:
+#   DEMO_PG  — the demo Postgres password (generate-keys.sh replaces this)
+#   DEMO_JWT — the well-known demo ANON_KEY prefix (iss: supabase-demo)
+#              which slips through if someone manually edits the password
+#              without running generate-keys.sh.
+DEMO_PG="your-super-secret-and-long-postgres-password"
+DEMO_JWT="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIg"
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "==> No .env found. Copying from .env.example..."
   cp supabase-project/.env.example "$ENV_FILE"
 fi
 
-if grep -q "$DEMO_SENTINEL" "$ENV_FILE"; then
+if grep -q "$DEMO_PG" "$ENV_FILE" || grep -q "$DEMO_JWT" "$ENV_FILE"; then
   echo "==> Demo secrets detected. Running generate-keys.sh to initialise secrets..."
   (cd supabase-project && echo "y" | bash utils/generate-keys.sh)
   echo "==> Secrets written to $ENV_FILE."
 fi
 
-# Final check — abort if sentinel is still present (e.g. generate-keys.sh failed).
-if grep -q "$DEMO_SENTINEL" "$ENV_FILE"; then
-  echo "ERROR: $ENV_FILE still contains demo secrets. Aborting."
+# Final check — abort if either sentinel is still present.
+SECRETS_OK=true
+if grep -q "$DEMO_PG" "$ENV_FILE"; then
+  echo "ERROR: $ENV_FILE still contains the demo POSTGRES_PASSWORD."
+  SECRETS_OK=false
+fi
+if grep -q "$DEMO_JWT" "$ENV_FILE"; then
+  echo "ERROR: $ENV_FILE still contains the demo ANON_KEY / SERVICE_ROLE_KEY (iss: supabase-demo)."
+  SECRETS_OK=false
+fi
+if [ "$SECRETS_OK" = false ]; then
+  echo "Aborting. Run: cd supabase-project && bash utils/generate-keys.sh"
   exit 1
 fi
 
-# Warn if HTTPS is not configured.
-CADDY_DOMAIN=$(grep '^CADDY_DOMAIN=' "$ENV_FILE" | cut -d'=' -f2)
+# ── Step 0b: Propagate PUBLIC_URL → SITE_URL / API_EXTERNAL_URL / SUPABASE_PUBLIC_URL ──
+# In dev PUBLIC_URL=http://localhost:8000 — leave the localhost defaults alone.
+# In production PUBLIC_URL=https://your-domain.com — rewrite all three so GoTrue
+# and Studio use the real domain without the operator touching them manually.
+CADDY_DOMAIN=$(grep '^CADDY_DOMAIN=' "$ENV_FILE" | grep -v '^#' | cut -d'=' -f2)
+PUBLIC_URL=$(grep '^PUBLIC_URL=' "$ENV_FILE" | grep -v '^#' | cut -d'=' -f2)
+
 if [ -z "$CADDY_DOMAIN" ] || echo "$CADDY_DOMAIN" | grep -q '^:'; then
-  echo "WARNING: CADDY_DOMAIN is set to '${CADDY_DOMAIN:-unset}' — serving plain HTTP."
-  echo "         Set CADDY_DOMAIN=your-domain.com in $ENV_FILE to enable HTTPS."
+  echo "WARNING: CADDY_DOMAIN is '${CADDY_DOMAIN:-unset}' — serving plain HTTP."
+  echo "         To enable HTTPS, uncomment CADDY_DOMAIN and PUBLIC_URL in $ENV_FILE."
+  APP_BASE_URL="http://${HOST_IP}:8000"
+else
+  if [ -z "$PUBLIC_URL" ]; then
+    echo "ERROR: CADDY_DOMAIN is set to a domain but PUBLIC_URL is not set in $ENV_FILE. Aborting."
+    exit 1
+  fi
+  APP_BASE_URL="$PUBLIC_URL"
+  echo "==> Production mode: propagating PUBLIC_URL=${PUBLIC_URL} to SITE_URL, API_EXTERNAL_URL, SUPABASE_PUBLIC_URL..."
+  sed -i "s|^SITE_URL=.*|SITE_URL=${PUBLIC_URL}|" "$ENV_FILE"
+  sed -i "s|^API_EXTERNAL_URL=.*|API_EXTERNAL_URL=${PUBLIC_URL}|" "$ENV_FILE"
+  sed -i "s|^SUPABASE_PUBLIC_URL=.*|SUPABASE_PUBLIC_URL=${PUBLIC_URL}|" "$ENV_FILE"
 fi
 
 # ── Step 1: Start Supabase ──
@@ -71,14 +103,21 @@ fi
 
 # ── Step 3: Create .env for the app ──
 ANON_KEY=$(grep '^ANON_KEY=' "$ENV_FILE" | cut -d'=' -f2)
+TURNSTILE_SITE_KEY=$(grep '^TURNSTILE_SITE_KEY=' "$ENV_FILE" | cut -d'=' -f2)
 
 if [ -z "$ANON_KEY" ]; then
   echo "ERROR: Could not read ANON_KEY from $ENV_FILE. Aborting."
   exit 1
 fi
 
+if [ -z "$TURNSTILE_SITE_KEY" ]; then
+  echo "ERROR: TURNSTILE_SITE_KEY is not set in $ENV_FILE. Aborting."
+  exit 1
+fi
+
 cat > .env.deploy <<EOF
 NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=${TURNSTILE_SITE_KEY}
 EOF
 
 echo "==> App .env.deploy created."
@@ -91,11 +130,15 @@ echo ""
 echo "============================================"
 echo "  Deployment complete!"
 echo ""
-echo "  App:          http://${HOST_IP}:8000/app"
-echo "  Supabase API: http://${HOST_IP}:8000"
+echo "  App:          ${APP_BASE_URL}/app"
+echo "  Supabase API: ${APP_BASE_URL}"
 echo ""
 echo "  To start Studio (on demand):"
 echo "    cd supabase-project"
 echo "    docker compose --profile studio up -d studio"
-echo "  Then visit: http://${HOST_IP}:8000"
+echo "  Then visit via SSH tunnel: ssh -L 8000:localhost:8000 user@host"
+echo ""
+echo "  Daily backups (run once to install):"
+echo "    (crontab -l 2>/dev/null; echo \"0 3 * * * $(pwd)/backup.sh >> /var/log/ps4pp-backup.log 2>&1\") | crontab -"
+echo "  Backups land in /var/backups/ps4pp — last 7 days kept."
 echo "============================================"
