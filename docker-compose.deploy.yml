@@ -33,7 +33,7 @@ services:
           memory: 768M
           cpus: "0.5"
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/app').then(r => { if (!r.ok) throw new Error(r.status) })"]
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/').then(r => { if (!r.ok) throw new Error(r.status) })"]
       interval: 30s
       timeout: 10s
       retries: 3

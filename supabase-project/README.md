@@ -46,7 +46,7 @@ docker compose --profile studio up -d studio
 
 **3. Open the dashboard in your browser:**
 ```
-http://localhost:8000
+http://localhost:8000/studio
 ```
 
 **4. Stop Studio when done:**

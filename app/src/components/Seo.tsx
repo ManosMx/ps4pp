@@ -16,7 +16,7 @@ export default function Seo({
   canonical,
 }: SeoProps) {
   const pageTitle = title ? `${title} — ${SITE_NAME}` : SITE_NAME;
-  const canonicalUrl = canonical ? `${SITE_URL}/app${canonical}` : undefined;
+  const canonicalUrl = canonical ? `${SITE_URL}${canonical}` : undefined;
 
   return (
     <Head>
