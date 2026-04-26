@@ -6,3 +6,4 @@ supabase-project/volumes/
 
 # Deploy env
 .env.deploy
+audit.md

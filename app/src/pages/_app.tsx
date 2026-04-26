@@ -28,6 +28,7 @@ import "@/components/tiptap-ui-primitive/button/button-colors.scss";
 import "@/components/tiptap-ui-primitive/button/button.scss";
 
 import type { AppProps } from "next/app";
+import * as Sentry from "@sentry/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { ReactQueryClientProvider } from "@/lib/ReactQueryClientProvider";
 import { Manrope, Inter } from "next/font/google";
@@ -46,11 +47,13 @@ const inter = Inter({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <main className={`${manrope.variable} ${inter.variable}`}>
-      <ReactQueryClientProvider>
-        <Component {...pageProps} />
-        <Toaster position="bottom-right" />
-      </ReactQueryClientProvider>
-    </main>
+    <Sentry.ErrorBoundary fallback={<p>An unexpected error occurred.</p>}>
+      <main className={`${manrope.variable} ${inter.variable}`}>
+        <ReactQueryClientProvider>
+          <Component {...pageProps} />
+          <Toaster position="bottom-right" />
+        </ReactQueryClientProvider>
+      </main>
+    </Sentry.ErrorBoundary>
   );
 }
